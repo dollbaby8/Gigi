@@ -1,0 +1,78 @@
+# Fifth Circuit Mandamus Petition - configuration file.
+# Fill in every field. Free-text fields may contain multi-paragraph content;
+# they are inserted verbatim.
+
+appeal_case_no: ""  # leave blank until the Fifth Circuit assigns a number
+
+case:
+  petitioner: "ACME Corporation"
+  respondent: "Hon. Jane Doe, U.S. District Judge"
+  real_party_in_interest: "John Smith"
+  district_court: "United States District Court for the Southern District of Texas, Houston Division"
+  district_case_no: "4:24-cv-01234"
+  district_judge: "Jane Doe"
+
+counsel:
+  name: "A. Lawyer"
+  firm: "Lawyer & Associates LLP"
+  address: |
+    123 Main Street, Suite 400
+    Houston, TX 77002
+  phone: "(713) 555-0100"
+  email: "alawyer@example.com"
+  bar_no: "TX 24000000"
+
+interested_persons:
+  - "ACME Corporation (Petitioner)"
+  - "John Smith (Real Party in Interest)"
+  - "A. Lawyer, Lawyer & Associates LLP (Counsel for Petitioner)"
+  - "B. Counsel, Defense Firm LLP (Counsel for Real Party in Interest)"
+  - "Hon. Jane Doe, United States District Judge (Respondent)"
+
+oral_argument:
+  requested: true
+  reason: >-
+    This petition presents a novel question concerning the scope of the
+    attorney-client privilege in multi-district litigation, and oral argument
+    would materially assist the Court.
+
+issues:
+  - >-
+    Whether the district court clearly and indisputably erred by compelling
+    production of documents protected by the attorney-client privilege.
+  - >-
+    Whether Petitioner has no other adequate means to obtain relief from the
+    district court's order before the privileged information is disclosed.
+
+facts:
+  - "On January 3, 2026, Petitioner filed ... [describe procedural posture]."
+  - "On February 14, 2026, the district court entered the order at issue ..."
+  - "Petitioner timely moved for reconsideration, which the district court denied on ..."
+
+jurisdiction: >-
+  This Court has jurisdiction to issue a writ of mandamus under the All Writs
+  Act, 28 U.S.C. Section 1651(a), in aid of its prospective appellate
+  jurisdiction under 28 U.S.C. Section 1291.
+
+argument:
+  no_other_adequate_means: >-
+    [Explain why appeal after final judgment, interlocutory review under
+    Section 1292(b), certification, or any other vehicle is inadequate.
+    Emphasize irreparable harm if the writ does not issue now.]
+  clear_and_indisputable_right: >-
+    [Explain the controlling authority that makes the district court's ruling
+    plainly wrong. Cite Fifth Circuit decisions where possible. Distinguish
+    any contrary authority.]
+  appropriateness: >-
+    [Explain why, in the exercise of the Court's discretion, the writ should
+    issue: e.g., recurring question of first impression, supervisory need,
+    usurpation of judicial power, etc.]
+
+relief: >-
+  Petitioner respectfully requests that this Court issue a writ of mandamus
+  directing the district court to vacate its order of [date] and to enter an
+  order [describe the specific relief].
+
+service:
+  - "Hon. Jane Doe, U.S. District Judge, [address]"
+  - "B. Counsel, Defense Firm LLP, [address] (Counsel for Real Party in Interest)"
