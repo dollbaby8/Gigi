@@ -1,0 +1,168 @@
+========================================================================
+                             No. __________
+
+                 IN THE UNITED STATES COURT OF APPEALS
+                         FOR THE FIFTH CIRCUIT
+
+                     _____________________________
+
+                        In re ACME Corporation,
+
+                              Petitioner.
+                     _____________________________
+
+                On Petition for Writ of Mandamus to the
+United States District Court for the Southern District of Texas, Houston Division
+                           No. 4:24-cv-01234
+                            (Hon. Jane Doe)
+                     _____________________________
+
+                     PETITION FOR WRIT OF MANDAMUS
+                     _____________________________
+
+                               A. Lawyer
+                        Lawyer & Associates LLP
+                       123 Main Street, Suite 400
+                           Houston, TX 77002
+
+                          Tel: (713) 555-0100
+                       Email: alawyer@example.com
+
+                         Counsel for Petitioner
+
+========================================================================
+
+
+CERTIFICATE OF INTERESTED PERSONS
+---------------------------------
+
+No. __________, In re ACME Corporation
+
+The undersigned counsel of record certifies that the following listed persons and entities as described in the fourth sentence of Fifth Circuit Rule 28.2.1 have an interest in the outcome of this case. These representations are made in order that the judges of this court may evaluate possible disqualification or recusal.
+
+    - ACME Corporation (Petitioner)
+    - John Smith (Real Party in Interest)
+    - A. Lawyer, Lawyer & Associates LLP (Counsel for Petitioner)
+    - B. Counsel, Defense Firm LLP (Counsel for Real Party in Interest)
+    - Hon. Jane Doe, United States District Judge (Respondent)
+
+
+Respectfully submitted,
+
+    /s/ A. Lawyer
+    A. Lawyer
+    Counsel for Petitioner
+
+
+STATEMENT REGARDING ORAL ARGUMENT
+---------------------------------
+
+Petitioner respectfully requests oral argument. This petition presents a novel question concerning the scope of the attorney-client privilege in multi-district litigation, and oral argument would materially assist the Court.
+
+
+TABLE OF CONTENTS
+-----------------
+
+    [Generate from final document before filing.]
+
+
+TABLE OF AUTHORITIES
+--------------------
+
+    [Generate from final document before filing.]
+
+
+RELIEF SOUGHT
+-------------
+
+Petitioner respectfully requests that this Court issue a writ of mandamus directing the district court to vacate its order of [date] and to enter an order [describe the specific relief].
+
+
+ISSUES PRESENTED
+----------------
+
+1. Whether the district court clearly and indisputably erred by compelling production of documents protected by the attorney-client privilege.
+
+2. Whether Petitioner has no other adequate means to obtain relief from the district court's order before the privileged information is disclosed.
+
+
+JURISDICTION
+------------
+
+This Court has jurisdiction to issue a writ of mandamus under the All Writs Act, 28 U.S.C. Section 1651(a), in aid of its prospective appellate jurisdiction under 28 U.S.C. Section 1291.
+
+
+STATEMENT OF FACTS
+------------------
+
+1. On January 3, 2026, Petitioner filed ... [describe procedural posture].
+
+2. On February 14, 2026, the district court entered the order at issue ...
+
+3. Petitioner timely moved for reconsideration, which the district court denied on ...
+
+
+REASONS WHY THE WRIT SHOULD ISSUE
+---------------------------------
+
+The Supreme Court has identified three conditions that must be satisfied before a writ of mandamus may issue. Cheney v. U.S. Dist. Court, 542 U.S. 367, 380-81 (2004). Each is satisfied here.
+
+I. PETITIONER HAS NO OTHER ADEQUATE MEANS TO ATTAIN THE RELIEF SOUGHT.
+
+[Explain why appeal after final judgment, interlocutory review under Section 1292(b), certification, or any other vehicle is inadequate. Emphasize irreparable harm if the writ does not issue now.]
+
+
+II. PETITIONER'S RIGHT TO ISSUANCE OF THE WRIT IS CLEAR AND INDISPUTABLE.
+
+[Explain the controlling authority that makes the district court's ruling plainly wrong. Cite Fifth Circuit decisions where possible. Distinguish any contrary authority.]
+
+
+III. THE WRIT IS APPROPRIATE UNDER THE CIRCUMSTANCES.
+
+[Explain why, in the exercise of the Court's discretion, the writ should issue: e.g., recurring question of first impression, supervisory need, usurpation of judicial power, etc.]
+
+
+CONCLUSION
+----------
+
+For the foregoing reasons, ACME Corporation respectfully requests that this Court issue a writ of mandamus granting the relief stated above, together with such other and further relief as the Court deems just and proper.
+
+
+Respectfully submitted,
+
+    /s/ A. Lawyer
+    A. Lawyer
+    Lawyer & Associates LLP
+    123 Main Street, Suite 400
+Houston, TX 77002
+
+    Tel: (713) 555-0100
+    Email: alawyer@example.com
+    Counsel for Petitioner
+
+
+CERTIFICATE OF SERVICE
+----------------------
+
+I certify that on __________, 20__, I electronically filed the foregoing with the Clerk of the Court for the United States Court of Appeals for the Fifth Circuit using the CM/ECF system. I further certify that a copy was served by __________ on:
+
+    - Hon. Jane Doe, U.S. District Judge, [address]
+    - B. Counsel, Defense Firm LLP, [address] (Counsel for Real Party in Interest)
+
+    Including: John Smith (real party in interest).
+
+
+    /s/ A. Lawyer
+    A. Lawyer
+
+
+CERTIFICATE OF COMPLIANCE
+-------------------------
+
+1. This petition complies with the type-volume limit of Fed. R. App. P. 21(d) because, excluding the parts exempted by Fed. R. App. P. 32(f), it contains ______ words (limit: 7800).
+
+2. This petition complies with the typeface requirements of Fed. R. App. P. 32(a)(5) and the type-style requirements of Fed. R. App. P. 32(a)(6) because it has been prepared in a proportionally spaced typeface using __________ in 14-point __________ font.
+
+
+    /s/ A. Lawyer
+    A. Lawyer
