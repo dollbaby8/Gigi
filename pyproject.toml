@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gigi"
+version = "0.1.0"
+description = "Reddit subreddit finder & analyzer to help find communities worth engaging with"
+requires-python = ">=3.10"
+dependencies = [
+    "praw>=7.7",
+    "click>=8.1",
+    "rich>=13.7",
+    "python-dotenv>=1.0",
+]
+
+[project.scripts]
+gigi = "gigi.cli:cli"
+
+[tool.setuptools.packages.find]
+where = ["src"]

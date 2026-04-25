@@ -1,19 +1,50 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for Claude Code when working in this repository.
 
-## Repository Status
+## What this project is
 
-This repository (`dollbaby8/Gigi`) is currently empty — no commits, source files, build configuration, or README exist yet. The remote has no branches.
+Gigi is a Python CLI that helps the user find Reddit communities worth
+engaging with, and understand each one's posting culture (rules, cadence,
+flairs, best-performing post times). It is strictly **read-only** — it does
+not post, vote, DM, or run multi-account flows. Don't add features that
+automate engagement or anything else that would violate Reddit's API terms.
 
-When source code lands, this file should be updated with:
+## Commands
 
-- **Build / test / lint commands** — the exact invocations, including how to run a single test.
-- **Architecture overview** — the cross-file structure and data flow that is not obvious from reading any single file.
-- **Project-specific conventions** — anything non-obvious about how code in this repo is organized, named, or wired together.
+```bash
+pip install -e .          # install in editable mode
+gigi find <topic>         # search & rank subreddits by active-user ratio
+gigi analyze <subreddit>  # rules, cadence, top posts, best post times
 
-Until that content exists, there is nothing repo-specific to document here. Do not invent commands or architecture; read the actual files that get added and update this file based on them.
+# Run without installing:
+PYTHONPATH=src python -m gigi.cli --help
+```
 
-## Working Branch
+There is no test suite or linter wired up yet. If one is added, document the
+exact invocations here, including how to run a single test.
 
-Per the task configuration, development happens on `claude/add-claude-documentation-dGkHI`. Commit and push work to that branch.
+Credentials live in `.env` (see `.env.example`). Disk cache lives in
+`.gigi-cache/` and is keyed by command + arguments — delete it to force a
+refresh.
+
+## Architecture
+
+```
+src/gigi/
+  cli.py       # click entrypoint; rich tables/panels for output
+  client.py    # PRAW factory + tiny JSON disk cache (cached(key, fn, ttl))
+  find.py      # find_subreddits(): search, filter by min subs, rank by active%
+  analyze.py   # analyze_subreddit(): pulls .new() + .top("week"), aggregates
+```
+
+Data flow: `cli.py` builds a `praw.Reddit` via `client.get_reddit()`, hands it
+to `find.py` / `analyze.py`, those modules wrap their PRAW calls in
+`client.cached(...)` so repeated queries are cheap. Everything returned from
+`cached()` must be JSON-serializable, which is why the per-module functions
+go through plain dicts before reconstructing dataclasses.
+
+## Working branch
+
+Development happens on `claude/reddit-community-tool-qoVfu`. Commit and push
+work to that branch.
