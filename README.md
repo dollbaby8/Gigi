@@ -16,6 +16,10 @@ helps you find them and understand them.
 - `gigi analyze <subreddit>` — pull rules, posting cadence, allowed post
   types, common flairs, top posts of the week, and the hours/weekdays where
   top posts tend to appear.
+- `gigi draft <subreddit> --topic "..."` — generate a post brief for that
+  sub: tone analysis from top posts, a fillable title + body skeleton, and a
+  pre-flight rules checklist. Template-based, not AI-generated — you still
+  write the actual post.
 
 ## Setup
 
@@ -36,6 +40,7 @@ gigi find "indie game dev"
 gigi find rust --min-subscribers 5000
 gigi analyze rust
 gigi analyze learnprogramming --sample-size 500
+gigi draft SkincareAddiction --topic "oily skin routine"
 ```
 
 Results are cached on disk under `.gigi-cache/` for a few hours so repeated
@@ -49,4 +54,5 @@ src/gigi/
   client.py    # PRAW client + disk cache
   find.py      # subreddit search + ranking
   analyze.py   # per-subreddit report (rules, cadence, top posts, best times)
+  draft.py     # post-brief generator (tone, skeleton, checklist) on top of analyze
 ```

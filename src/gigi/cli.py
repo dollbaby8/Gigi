@@ -12,6 +12,7 @@ from rich.table import Table
 
 from .analyze import analyze_subreddit
 from .client import MissingCredentials, get_reddit
+from .draft import draft_post
 from .find import find_subreddits
 
 console = Console()
@@ -121,6 +122,51 @@ def analyze(subreddit: str, sample_size: int) -> None:
         for p in report.top_posts_week:
             tp.add_row(_humanize(p.score), _humanize(p.num_comments), p.flair or "", p.title)
         console.print(tp)
+
+
+@cli.command()
+@click.argument("subreddit")
+@click.option("--topic", required=True, help="What you want the post to be about, e.g. 'oily skin routine'.")
+def draft(subreddit: str, topic: str) -> None:
+    """Generate a post brief for SUBREDDIT: rules, tone, skeleton, checklist."""
+    try:
+        reddit = get_reddit()
+    except MissingCredentials as e:
+        console.print(f"[red]{e}[/red]")
+        sys.exit(1)
+
+    with console.status(f"Building brief for r/{subreddit}..."):
+        brief = draft_post(reddit, subreddit, topic)
+
+    header = (
+        f"[bold cyan]Post brief: r/{brief.subreddit}[/bold cyan]\n"
+        f"Topic: {brief.topic}\n"
+        f"Title style in top posts: [bold]{brief.title_style}[/bold] "
+        f"(median {brief.median_title_chars} chars"
+        f"{', often bracketed' if brief.uses_brackets else ''})"
+    )
+    console.print(Panel(header, title="Brief"))
+
+    skeleton = (
+        f"[bold]Suggested title:[/bold]\n  {brief.title_skeleton}\n\n"
+        f"[bold]Suggested flair:[/bold] "
+        f"{brief.suggested_flair or '— (none observed; check sub for required flairs)'}\n\n"
+        f"[bold]Body skeleton:[/bold]\n  "
+        + brief.body_skeleton.replace("\n", "\n  ")
+    )
+    console.print(Panel(skeleton, title="Skeleton"))
+
+    checklist_md = "\n".join(f"- [ ] {item}" for item in brief.checklist)
+    console.print(Panel(Markdown(checklist_md), title="Pre-flight checklist"))
+
+    if brief.rules:
+        rules_md = "\n".join(f"- {r}" for r in brief.rules)
+        console.print(Panel(Markdown(rules_md), title=f"r/{brief.subreddit} rules — read before posting"))
+
+    console.print(
+        "[dim]This is a template, not finished copy. Fill in the brackets with "
+        "your actual specifics — vague posts get vague responses.[/dim]"
+    )
 
 
 if __name__ == "__main__":
