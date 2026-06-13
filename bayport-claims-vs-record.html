@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Record vs. Bayport Laboratories</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --panel: #161d27;
+    --panel-edge: #232f3e;
+    --claim: #ff5d5d;
+    --record: #3ddc97;
+    --gold: #e8b44a;
+    --ink: #e8edf4;
+    --muted: #94a3b8;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: #05070a; }
+  body {
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; padding: 16px;
+  }
+  .slide {
+    width: 1280px; height: 720px;
+    background:
+      radial-gradient(1100px 420px at 85% -10%, #1c2a3d 0%, transparent 60%),
+      radial-gradient(800px 380px at -5% 110%, #15212e 0%, transparent 55%),
+      var(--bg);
+    border: 1px solid var(--panel-edge);
+    border-radius: 14px;
+    padding: 36px 44px 26px;
+    display: flex; flex-direction: column;
+    color: var(--ink);
+    overflow: hidden;
+    position: relative;
+  }
+  .kicker {
+    font-size: 13px; letter-spacing: 3.5px; font-weight: 700;
+    color: var(--gold); text-transform: uppercase;
+  }
+  h1 {
+    font-size: 38px; font-weight: 800; line-height: 1.1; margin-top: 6px;
+  }
+  h1 .vs { color: var(--claim); }
+  .subtitle {
+    margin-top: 6px; font-size: 16px; color: var(--muted);
+  }
+  .grid {
+    margin-top: 20px; flex: 1;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--panel-edge);
+    border-radius: 10px;
+    padding: 14px 16px 12px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .card h2 {
+    font-size: 15px; font-weight: 800; letter-spacing: 0.4px;
+    color: var(--gold);
+  }
+  .row { display: flex; gap: 10px; align-items: flex-start; }
+  .tag {
+    flex: 0 0 86px; text-align: center;
+    font-size: 10px; font-weight: 800; letter-spacing: 1.4px;
+    padding: 4px 0; border-radius: 4px; margin-top: 2px;
+  }
+  .tag.claim { color: var(--claim); border: 1px solid var(--claim); }
+  .tag.record { color: var(--record); border: 1px solid var(--record); }
+  .row p { font-size: 13.5px; line-height: 1.42; }
+  .row p b { color: #fff; }
+  .cite {
+    font-size: 10.5px; color: var(--muted); font-style: italic;
+    margin-top: auto; padding-top: 4px;
+    border-top: 1px dashed var(--panel-edge);
+  }
+  .footer {
+    margin-top: 16px; display: flex; justify-content: space-between;
+    align-items: flex-end; gap: 24px;
+  }
+  .disclaimer {
+    font-size: 10px; color: var(--muted); line-height: 1.45; max-width: 880px;
+  }
+  .casestamp {
+    text-align: right; font-size: 11px; color: var(--gold);
+    font-weight: 700; letter-spacing: 1px; white-space: nowrap;
+  }
+  .casestamp span { display: block; color: var(--muted); font-weight: 400; letter-spacing: 0; }
+  @media print {
+    body { padding: 0; }
+    .slide { border-radius: 0; width: 100%; height: 100vh; }
+  }
+</style>
+</head>
+<body>
+<div class="slide">
+  <div>
+    <div class="kicker">Garcia v. Bayport Laboratories, LLC &nbsp;•&nbsp; Public-Record Briefing</div>
+    <h1>What Bayport Laboratories Said <span class="vs">— vs. —</span> What the Record Shows</h1>
+    <div class="subtitle">Four key claims, checked against federal court filings, U.S. Department of Labor action, and public records.</div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>1 &nbsp;“Stolen trade secrets — millions in damages”</h2>
+      <div class="row">
+        <div class="tag claim">The Claim</div>
+        <p>Bayport and CEO Yaumara Camacho counterclaimed for trade-secret misappropriation and sought sweeping emergency injunctions against the Garcias.</p>
+      </div>
+      <div class="row">
+        <div class="tag record">The Record</div>
+        <p>On <b>Oct. 8, 2025</b>, Judge Keith P. Ellison <b>denied Bayport's TRO and preliminary-injunction requests</b> except narrow NDA enforcement — and Bayport was left moving for reconsideration (Dkt. 44). Plaintiffs state no evidence of misappropriation has been produced.</p>
+      </div>
+      <div class="cite">Minute Entry, Oct. 8, 2025; Dkt. 6, 21, 44 — No. 4:25-cv-03676 (S.D. Tex.)</div>
+    </div>
+
+    <div class="card">
+      <h2>2 &nbsp;“The safety complaints were fabricated”</h2>
+      <div class="row">
+        <div class="tag claim">The Claim</div>
+        <p>Bayport dismissed reports of product contamination and sanitation failures as the invention of a disgruntled ex-employee.</p>
+      </div>
+      <div class="row">
+        <div class="tag record">The Record</div>
+        <p>Per plaintiffs' filings, the <b>U.S. Department of Labor (OSHA) issued formal Section 11(c) whistleblower protection</b> to Milagros Garcia after she reported those very conditions.</p>
+      </div>
+      <div class="cite">OSHA §11(c) matter as alleged in Pls.' filings; press record (OpenPR, Aug. 2025)</div>
+    </div>
+
+    <div class="card">
+      <h2>3 &nbsp;“There was no retaliation”</h2>
+      <div class="row">
+        <div class="tag claim">The Claim</div>
+        <p>Bayport maintains its lawsuits and terminations had nothing to do with the federal safety complaint.</p>
+      </div>
+      <div class="row">
+        <div class="tag record">The Record</div>
+        <p>Garcia was employed <b>Feb. 10 – June 8, 2025</b> — fired after reporting — then sued, with Bayport <b>demanding retraction of her federal OSHA complaint</b>, a demand plaintiffs note federal law itself prohibits.</p>
+      </div>
+      <div class="cite">As alleged in Pls.' First Am. Compl. (Dkt. 20) and public coverage; contested by Defendants</div>
+    </div>
+
+    <div class="card">
+      <h2>4 &nbsp;The spotless-image PR campaign</h2>
+      <div class="row">
+        <div class="tag claim">The Claim</div>
+        <p>Paid placements — a “Leadership Spotlight” and “the Texas manufacturer behind top beauty brands” — present an unblemished record.</p>
+      </div>
+      <div class="row">
+        <div class="tag record">The Record</div>
+        <p>The placements <b>omit the pending federal case, the OSHA whistleblower matter, and the founders' documented litigation history</b> — including two SBA PPP loans totaling <b>$751,686</b> now under scrutiny in plaintiffs' fraud allegations (unadjudicated).</p>
+      </div>
+      <div class="cite">Medium (@Bayportlabs); News By Wire “Image Fix” report; SBA PPP records (FederalPay.org)</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="disclaimer">
+      Sources: docket of <i>Garcia v. Bayport Laboratories, LLC</i>, No. 4:25-cv-03676 (S.D. Tex., filed Aug. 5, 2025); U.S. SBA Paycheck Protection Program disclosures; cited press reports.
+      Items marked “as alleged” reflect plaintiffs' allegations in active, contested litigation; no court has made final findings of fact, and all parties' claims remain disputed.
+    </div>
+    <div class="casestamp">
+      4:25-CV-03676 &nbsp;|&nbsp; S.D. TEX.
+      <span>Prepared June 13, 2026</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>
