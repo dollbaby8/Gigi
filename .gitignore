@@ -1,0 +1,35 @@
+# Secrets — never commit
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+
+# Test / tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# NOTE: case_files/ and drafts/ are tracked here ONLY because they contain
+# clearly-labeled SAMPLE documents and a sample draft for the Phase 1 demo.
+# For a real campaign, you will likely want to ignore real case material and
+# generated drafts. Uncomment the lines below to do that:
+# case_files/*
+# !case_files/.gitkeep
+# drafts/pending_review/*
+# !drafts/pending_review/.gitkeep
+# drafts/approved/*
+# !drafts/approved/.gitkeep

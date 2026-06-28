@@ -1,0 +1,49 @@
+# Accountability Content Engine — configuration
+#
+# Everything here has a built-in default (see accountability_engine/config.py).
+# This file only OVERRIDES defaults. You can delete keys you don't care about.
+
+paths:
+  case_files: ./case_files            # where you drop source documents
+  pending_review: ./drafts/pending_review   # drafts wait here for a human
+  approved: ./drafts/approved         # you MOVE files here to approve them
+
+platforms:
+  # Which platforms drafts are targeted at. Actual posting is Phase 3 and is
+  # intentionally not built yet — these are just labels on the draft.
+  targets:
+    - tiktok
+    - instagram_reels
+    - youtube_shorts
+    - x
+    - substack
+
+cadence:
+  # ToS-compliant, human-paced. Enforced in Phase 3; configured from day one.
+  # Keep this low. The goal is durable accounts, not volume.
+  max_posts_per_day_per_platform: 2
+
+voice:
+  name: neutral_factual
+  max_words: 200
+  # Templates control tone. Keep it neutral and factual: state what the record
+  # says and let it land. Available placeholders:
+  #   {topic} {claim} {counter} {source_a} {source_b} {date_a} {date_b}
+  # (Defaults are defined in code; uncomment and edit to customize.)
+  #
+  # templates:
+  #   monetary: |
+  #     The record shows a contradiction on {topic}.
+  #     Earlier ({date_a}): "{claim}" — {source_a}.
+  #     Later ({date_b}): "{counter}" — {source_b}.
+  #     The documents speak for themselves.
+
+extraction:
+  overlap_min: 2            # shared significant words to consider "same topic"
+  negation_overlap_min: 3   # stricter threshold for the negation detector
+  material_ratio: 5.0       # dollar amounts differing by >= this ratio = contradiction
+  keep_short:               # short but meaningful tokens to keep
+    - tro
+    - "no"
+  # status_reversals and negation_cues also live in code defaults; override here
+  # if your case files use different terminology.

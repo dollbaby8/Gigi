@@ -1,0 +1,11 @@
+# Accountability Content Engine — dependencies (minimal by design).
+#
+# Phase 1 runs on TXT files with NO third-party packages at all.
+# These are only needed for the formats / conveniences noted below.
+
+PyYAML>=6.0        # read config.yaml and write YAML front-matter (recommended)
+pypdf>=4.0         # only needed to read PDF case files
+python-docx>=1.1   # only needed to read DOCX case files
+
+# Dev / testing (optional):
+# pytest>=8.0
