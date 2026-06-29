@@ -23,13 +23,16 @@ htmlcov/
 .DS_Store
 Thumbs.db
 
-# NOTE: case_files/ and drafts/ are tracked here ONLY because they contain
-# clearly-labeled SAMPLE documents and a sample draft for the Phase 1 demo.
-# For a real campaign, you will likely want to ignore real case material and
-# generated drafts. Uncomment the lines below to do that:
+# Real-campaign content stays OUT of version control. Generated drafts can name
+# real parties in active litigation; do not store them in git history. They live
+# on the operator's machine only and are re-generated from the ledger as needed.
+drafts/pending_review/*
+!drafts/pending_review/.gitkeep
+drafts/approved/*
+!drafts/approved/.gitkeep
+
+# case_files/ is left TRACKED because it currently holds only the clearly-labeled
+# FICTIONAL sample documents used for the Phase 1 demo. When you drop in REAL
+# case files, uncomment the lines below so they are never committed:
 # case_files/*
 # !case_files/.gitkeep
-# drafts/pending_review/*
-# !drafts/pending_review/.gitkeep
-# drafts/approved/*
-# !drafts/approved/.gitkeep
