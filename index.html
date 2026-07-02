@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Blog — Preview</title>
+  <meta name="description" content="Clean white + navy blog layout preview." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <!-- ============ Header ============ -->
+  <header class="site-header">
+    <div class="container nav">
+      <a href="index.html" class="brand">
+        <!-- Replace this text with your blog name -->
+        Your&nbsp;Blog
+      </a>
+      <button class="nav-toggle" aria-label="Menu" onclick="document.getElementById('nav').classList.toggle('open')">&#9776;</button>
+      <ul class="nav-links" id="nav">
+        <li><a href="index.html" class="active">Home</a></li>
+        <li><a href="#">Blogs</a></li>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- ============ Hero ============ -->
+  <section class="hero">
+    <div class="container">
+      <h1>Fresh ideas, one post at a time</h1>
+      <p>A clean, simple blog — write a post, hit publish, done. This is a preview of the white &amp; navy design.</p>
+    </div>
+  </section>
+
+  <!-- ============ Blog grid ============ -->
+  <section class="section">
+    <div class="container">
+      <div class="grid">
+
+        <article class="card">
+          <div class="card-media">
+            <img alt="" src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23234a86'/%3E%3Cstop offset='1' stop-color='%2316305b'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='600' height='400' fill='url(%23g)'/%3E%3C/svg%3E" />
+          </div>
+          <div class="card-body">
+            <div class="card-meta"><span class="tag">Getting Started</span><span class="date">July 2, 2026</span></div>
+            <h3>Welcome to your new blog</h3>
+            <p>This is where your first post preview and excerpt would appear for readers to click into.</p>
+            <a href="#" class="read-more">Read Now &rarr;</a>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-media">
+            <img alt="" src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400'%3E%3Cdefs%3E%3ClinearGradient id='g2' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%232f5fa8'/%3E%3Cstop offset='1' stop-color='%23234a86'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='600' height='400' fill='url(%23g2)'/%3E%3C/svg%3E" />
+          </div>
+          <div class="card-body">
+            <div class="card-meta"><span class="tag">Tips</span><span class="date">July 2, 2026</span></div>
+            <h3>How the card layout works</h3>
+            <p>Each post shows an image, a category tag, the date, a title, and a short summary — just like your reference.</p>
+            <a href="#" class="read-more">Read Now &rarr;</a>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-media">
+            <img alt="" src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400'%3E%3Cdefs%3E%3ClinearGradient id='g3' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2316305b'/%3E%3Cstop offset='1' stop-color='%230f2340'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='600' height='400' fill='url(%23g3)'/%3E%3C/svg%3E" />
+          </div>
+          <div class="card-body">
+            <div class="card-meta"><span class="tag">Design</span><span class="date">July 2, 2026</span></div>
+            <h3>White background, navy accents</h3>
+            <p>Change the colors in one place (the CSS variables) and the whole site re-themes instantly.</p>
+            <a href="#" class="read-more">Read Now &rarr;</a>
+          </div>
+        </article>
+
+      </div>
+
+      <div class="center">
+        <a href="#" class="btn">Browse All Blogs</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Footer ============ -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <a href="index.html" class="brand">Your&nbsp;Blog</a>
+      <ul class="footer-links">
+        <li><a href="#">Home</a></li>
+        <li><a href="#">Blogs</a></li>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+      <div class="copyright">&copy; 2026 Your Blog. All rights reserved.</div>
+    </div>
+  </footer>
+</body>
+</html>
