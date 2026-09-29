@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import os
 import sys
 from datetime import date
 from pathlib import Path
@@ -359,7 +360,12 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: Optional[List[str]] = None) -> int:
     args = build_parser().parse_args(argv)
-    return args.func(args)
+    try:
+        return args.func(args)
+    except BrokenPipeError:
+        # Output was piped to a reader that closed early (e.g. `| head`): exit quietly.
+        sys.stdout = open(os.devnull, "w")
+        return 0
 
 
 if __name__ == "__main__":
