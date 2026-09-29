@@ -1,0 +1,17 @@
+{
+ "_note": "FICTIONAL sample docket (DocketBird export format) for demos and tests. No real case.",
+ "documents": [
+  {"id": "sample-00001", "title": "COMPLAINT against Acme Widgets, LLC filed by Jane Doe.", "filing_date": "2026-01-05", "restricted": false, "primary_docket_sheet_number": 1, "downloaded": 1},
+  {"id": "sample-00002", "title": "ORDER for Initial Pretrial and Scheduling Conference and Order to Disclose Interested Persons. Initial Conference set for 3/2/2026 at 10:00 AM in by telephone before Judge Jane Roe. (Signed by Judge Jane Roe) Parties notified.", "filing_date": "2026-01-06", "restricted": false, "primary_docket_sheet_number": 2, "downloaded": 1},
+  {"id": "sample-00005", "title": "MOTION to Dismiss for Failure to State a Claim by Acme Widgets, LLC, filed. Motion Docket Date 2/23/2026.", "filing_date": "2026-02-02", "restricted": false, "primary_docket_sheet_number": 5, "downloaded": 0},
+  {"id": "sample-00005-a1", "title": "Proposed Order", "filing_date": "2026-02-02", "restricted": false, "primary_docket_sheet_number": 5, "downloaded": 0},
+  {"id": "sample-00006", "title": "RESPONSE in Opposition to [5] MOTION to Dismiss for Failure to State a Claim, filed by Jane Doe.", "filing_date": "2026-02-20", "restricted": false, "primary_docket_sheet_number": 6, "downloaded": 0},
+  {"id": "sample-00007", "title": "Mail Returned Undeliverable as to Jane Doe re: [2] Order, filed.", "filing_date": "2026-03-01", "restricted": false, "primary_docket_sheet_number": 7, "downloaded": 0},
+  {"id": "sample-00008", "title": "ORDER denying [5] Motion to Dismiss for Failure to State a Claim. (Signed by Judge Jane Roe) Parties notified.", "filing_date": "2026-03-10", "restricted": false, "primary_docket_sheet_number": 8, "downloaded": 1},
+  {"id": "sample-00009", "title": "MOTION for Protective Order by Acme Widgets, LLC, filed. Motion Docket Date 4/2/2026.", "filing_date": "2026-03-12", "restricted": false, "primary_docket_sheet_number": 9, "downloaded": 0},
+  {"id": "sample-00009-a1", "title": "Exhibit A", "filing_date": "2026-03-12", "restricted": false, "primary_docket_sheet_number": 9, "downloaded": 0},
+  {"id": "sample-00010", "title": "EMERGENCY MOTION to Compel Discovery by Jane Doe, filed.", "filing_date": "2026-03-14", "restricted": false, "primary_docket_sheet_number": 10, "downloaded": 0},
+  {"id": "sample-00000-t001", "title": "Minute Entry for proceedings held before Judge Jane Roe. STATUS CONFERENCE held on 3/16/2026. (Evidentiary Hearing set for 4/1/2026 at 01:00 PM in Courtroom 9B Houston before Judge Jane Roe)., filed.", "filing_date": "2026-03-16", "restricted": false, "primary_docket_sheet_number": null, "downloaded": 0},
+  {"id": "sample-00012", "title": "ORDER granting in part and denying in part [10] EMERGENCY MOTION to Compel Discovery. (Signed by Judge Jane Roe) Parties notified.", "filing_date": "2026-03-20", "restricted": false, "primary_docket_sheet_number": 12, "downloaded": 1}
+ ]
+}

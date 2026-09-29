@@ -1,0 +1,12 @@
+# Real case data is attorney work product. It lives in cases/ and never
+# gets committed while this repository is public. See README "Privacy".
+cases/
+out/
+*.ics
+
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+build/
+dist/

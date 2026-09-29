@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gigi"
+version = "0.1.0"
+description = "SDTX litigation assistant: docket tracking, FRCP/Local Rule deadlines, and judge-specific precedent research."
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = []
+
+[project.scripts]
+gigi = "gigi.cli:main"
+
+[tool.setuptools]
+packages = ["gigi"]

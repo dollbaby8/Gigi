@@ -1,0 +1,27 @@
+{
+ "_note": "FICTIONAL sample case for demos and tests. Real case directories belong in cases/ (git-ignored).",
+ "case_number": "4:26-cv-00001",
+ "court": "S.D. Tex. (Houston)",
+ "caption": "Doe v. Acme Widgets, LLC",
+ "judge": "Jane Roe",
+ "our_side": "Plaintiff",
+ "service_by_mail": false,
+ "extra_holidays": [],
+ "judgment_entered": null,
+ "scheduling_order": {
+  "source": "ECF 13",
+  "deadlines": [
+   {"label": "Plaintiff's expert reports", "date": "2026-06-15"},
+   {"label": "Discovery closes", "date": "2026-09-30"},
+   {"label": "Dispositive motions", "date": "2026-10-30"},
+   {"label": "Jury trial", "date": "2027-01-11", "kind": "trial"}
+  ]
+ },
+ "custom_deadlines": [
+  {"label": "Serve second requests for production", "date": "2026-04-10", "note": "Internal target"}
+ ],
+ "alerts": [
+  {"level": "warn", "text": "ECF 9 (protective order) submits 2026-04-02 — response due by then."}
+ ],
+ "entry_overrides": {}
+}

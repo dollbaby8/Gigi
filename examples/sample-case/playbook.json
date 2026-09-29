@@ -1,0 +1,16 @@
+{
+ "case_number": "4:26-cv-00001",
+ "judge": "Jane Roe",
+ "updated": "2026-03-25",
+ "targets": {
+  "ECF 9": {"title": "Defendant's Motion for Protective Order", "ask": "Deny the motion; the movant has not shown good cause with specific facts."}
+ },
+ "in_case_orders": [
+  {"ecf": "ECF 12", "date": "2026-03-20", "title": "Order on emergency motion to compel", "excerpt": "ORDER granting in part and denying in part [10] EMERGENCY MOTION to Compel Discovery.", "verbatim": true, "use": "The Court already compelled production on overlapping requests; the protective order would undo that ruling.", "targets": ["ECF 9"]}
+ ],
+ "authorities": [
+  {"id": "frcp-26c1", "kind": "rule", "case_name": "Fed. R. Civ. P. 26(c)(1)", "citation": "Fed. R. Civ. P. 26(c)(1)", "date": null, "holding": "A protective order requires good cause and a certification of a good-faith conference.", "quote": "The court may, for good cause, issue an order to protect a party or person from annoyance, embarrassment, oppression, or undue burden or expense", "pin": null, "use": "Hold the movant to the good-cause and conference requirements.", "targets": ["ECF 9"], "source_url": "https://www.law.cornell.edu/rules/frcp/rule_26", "verified": true, "verification": "Rule text (sample entry)."}
+ ],
+ "adverse": [],
+ "unverified_leads": []
+}
