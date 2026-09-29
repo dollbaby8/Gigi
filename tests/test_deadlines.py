@@ -1,7 +1,7 @@
 import unittest
 from datetime import date
 
-from gigi.deadlines import compute, post_judgment, roll, submission_day
+from gigi.deadlines import compute, post_judgment, reply_day, roll, submission_day
 
 
 class SubmissionDayTests(unittest.TestCase):
@@ -21,6 +21,13 @@ class SubmissionDayTests(unittest.TestCase):
         for filed, expected in self.CLERK_PAIRS:
             with self.subTest(filed=filed):
                 self.assertEqual(submission_day(filed)[0], expected)
+
+
+class ReplyDayTests(unittest.TestCase):
+    def test_seven_days_and_rolls(self):
+        self.assertEqual(reply_day(date(2026, 10, 14))[0], date(2026, 10, 21))
+        # 11/4/2026 + 7 = 11/11/2026, Veterans Day -> 11/12.
+        self.assertEqual(reply_day(date(2026, 11, 4))[0], date(2026, 11, 12))
 
 
 class ComputeTests(unittest.TestCase):

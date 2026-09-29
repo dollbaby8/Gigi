@@ -28,10 +28,13 @@ MOTION_CATEGORIES = {
 }
 DISPOSITION_RE = re.compile(
     r"(granting in part and denying in part|denying as moot|dismissing as moot|finding as moot|"
-    r"granting|denying|mooting|terminating|striking|withdrawing)\s+\[(\d+)\]",
+    r"granting|denying|mooting|terminating|striking|withdrawing)\s+"
+    # CM/ECF shows "[51]"; some exports drop the brackets ("denying 8 Motion for ...").
+    r"(?:\[(\d+)\]|(\d+)(?=\s+(?:(?:Opposed|Unopposed|Agreed|Amended|Emergency|Sealed|Supplemental|First|Second)\s+)*"
+    r"(?:Motion|Petition|Application|Objection|Request)\b))",
     re.IGNORECASE,
 )
-DISPOSITION_RE_LOOSE = re.compile(r"\b(granting|denying)\b[^\[\];]{0,80}?\bre:\s*\[(\d+)\]", re.IGNORECASE)
+DISPOSITION_RE_LOOSE = re.compile(r"\b(granting|denying)\b[^\[\];]{0,80}?\bre:\s*\[?(\d+)\]?", re.IGNORECASE)
 MOTION_DOCKET_DATE_RE = re.compile(r"Motion Docket Date:?\s*(\d{1,2}/\d{1,2}/\d{4})")
 _MOD = (r"(?:Initial|Status|Scheduling|Pretrial|Final|Docket|Motion|Evidentiary|Show Cause|Settlement|"
         r"Telephone|Telephonic|Rule 16|Preliminary Injunction|Contempt|Discovery|Bench|Jury|Oral)")
@@ -42,9 +45,9 @@ SETTING_RE = re.compile(
     r"(?P<where>.*?)(?=\s+before\b|[,.(]|$)"
 )
 SUPPORT_RE = re.compile(
-    r"^(BRIEF|Brief|(Supplemental )?(EXHIBITS?|Exhibits?)|APPENDIX|Appendix|DECLARATION|Declaration|AFFIDAVIT|"
-    r"Affidavit|CERTIFICATE|Certificate|(First |Second |Third |Fourth )?SUPPLEMENT|Supplement|Proposed Order|"
-    r"PROPOSED ORDER)\b"
+    r"^((First |Second |Third |Fourth )?(Supplemental|SUPPLEMENTAL) )?(BRIEF|Brief|EXHIBITS?|Exhibits?|APPENDIX|Appendix|"
+    r"DECLARATION|Declaration|AFFIDAVIT|Affidavit|CERTIFICATE|Certificate|Proposed Order|PROPOSED ORDER)\b"
+    r"|^(First |Second |Third |Fourth )?(SUPPLEMENT|Supplement)\b"
 )
 ORDER_START_RE = re.compile(
     r"^(ORDER|Order\b|MEMORANDUM (AND|&) (ORDER|OPINION)|Memorandum and Order|MEMORANDUM OPINION|"
@@ -87,6 +90,8 @@ def classify(text: str) -> str:
         return "reply"
     if SUPPORT_RE.match(t):
         return "support"
+    if re.match(r"^(NOTICE|Notice|CLERKS NOTICE|Clerks Notice|ADVISORY)\b", t) and not re.match(r"^NOTICE OF MOTION", t, re.I):
+        return "notice"
     if re.search(r"\bMOTION\b", t) or (t and all(p.strip() in MOTION_CATEGORIES for p in t.split(" AND "))):
         return "motion"
     if re.match(r"^((First |Second |Third )?AMENDED COMPLAINT|COMPLAINT|Original Complaint)", t):
@@ -162,7 +167,7 @@ class Docket:
             seen = set()
             for rx in (DISPOSITION_RE, DISPOSITION_RE_LOOSE):
                 for m in rx.finditer(e.text):
-                    key = (m.group(1).lower(), int(m.group(2)))
+                    key = (m.group(1).lower(), int(next(g for g in m.groups()[1:] if g)))
                     if key in seen:
                         continue
                     seen.add(key)

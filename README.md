@@ -3,7 +3,7 @@
 Gigi is a small command-line tool for litigating in the Southern District of Texas. It does five things:
 
 1. **Analyzes a docket.** It pulls out the judge's orders, rulings on each motion, motions with no ruling found, hearing settings (telephone vs. in person), and returned mail.
-2. **Computes deadlines.** It follows FRCP 6(a)/(d), S.D. Tex. LR 7.3/7.4 submission days, federal legal holidays, and the post-judgment and appeal clocks (Rules 54(d)(2), 59, 60(c); FRAP 4(a)). Every date comes with the arithmetic that produced it.
+2. **Computes deadlines.** It follows FRCP 6(a)/(d), S.D. Tex. LR 7.3/7.4 submission and reply days, federal legal holidays, and the post-judgment and appeal clocks (Rules 54(d)(2), 59, 60(c); FRAP 4(a)). Every date comes with the arithmetic that produced it.
 3. **Researches your judge.** It searches CourtListener for the presiding judge's own opinions and orders, by issue, so a brief can hold the court to its own prior rulings.
 4. **Keeps a citation-verified playbook.** Authorities and the court's own in-case orders are mapped to docket targets (e.g. `ECF 200`). Only entries marked verified render into briefs.
 5. **Builds outputs.** It generates brief-ready Markdown argument inserts, an `.ics` deadline calendar with reminders, and a self-contained HTML dashboard that works on a phone.
@@ -53,6 +53,7 @@ gigi build cases/my-case                 # briefs for every target + calendar + 
 
 ```bash
 gigi submission --filed 2025-09-22            # LR 7.3: 21 days -> Columbus Day -> 2025-10-14
+gigi reply --response-filed 2026-11-04        # LR 7.4(E): 7 days -> Veterans Day -> 2026-11-12
 gigi deadline --from 2026-10-02 --days 14 --mail   # FRCP 6(d) adds 3 days after the 6(a) period
 gigi post-judgment --entered 2026-10-05       # 54(d)(2), 59(e), FRAP 4(a)(1)(A), 4(a)(5), 60(c)(1)
 ```

@@ -15,6 +15,7 @@ from gigi.holidays import holiday_name, is_business_day
 # S.D. Tex. LR 7.3: opposed motions are submitted to the judge 21 days from
 # filing; LR 7.4 requires responses by the submission day.
 SDTX_SUBMISSION_DAYS = 21
+SDTX_REPLY_DAYS = 7  # LR 7.4(E): movant's reply, "unless otherwise directed by the presiding judge"
 MAIL_DAYS = 3  # FRCP 6(d)
 
 
@@ -111,6 +112,16 @@ def submission_day(filed: date, extra: Iterable[date] = ()) -> Tuple[date, List[
     notes.append(
         "S.D. Tex. LR 7.3/7.4: the opposed motion is submitted on this day and any response is due by it. "
         "Check the judge's procedures and any order setting a different schedule."
+    )
+    return due, notes
+
+
+def reply_day(response_filed: date, extra: Iterable[date] = ()) -> Tuple[date, List[str]]:
+    """S.D. Tex. LR 7.4(E): the movant may reply within 7 days after the response is filed."""
+    due, notes = compute(response_filed, SDTX_REPLY_DAYS, extra=extra)
+    notes.append(
+        "S.D. Tex. LR 7.4(E) (7 days from the response, unless otherwise directed by the presiding judge). "
+        "Confirm against the current Local Rules and the judge's procedures."
     )
     return due, notes
 

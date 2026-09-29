@@ -15,7 +15,7 @@ from gigi import docket as dk
 from gigi import ics
 from gigi import playbook as pbk
 from gigi.casefile import case_deadlines, init_case, load_case
-from gigi.deadlines import compute, post_judgment, submission_day
+from gigi.deadlines import compute, post_judgment, reply_day, submission_day
 
 
 def _date(text: str) -> date:
@@ -45,6 +45,12 @@ def cmd_deadline(args) -> int:
 def cmd_submission(args) -> int:
     due, notes = submission_day(args.filed)
     _print_deadline("Submission / response day", due, notes)
+    return 0
+
+
+def cmd_reply(args) -> int:
+    due, notes = reply_day(args.response_filed)
+    _print_deadline("Reply due", due, notes)
     return 0
 
 
@@ -225,6 +231,10 @@ def build_parser() -> argparse.ArgumentParser:
     s = sub.add_parser("submission", help="S.D. Tex. LR 7.3 submission/response day for a motion")
     s.add_argument("--filed", type=_date, required=True)
     s.set_defaults(func=cmd_submission)
+
+    s = sub.add_parser("reply", help="S.D. Tex. LR 7.4(E) reply deadline from the response filing date")
+    s.add_argument("--response-filed", type=_date, required=True)
+    s.set_defaults(func=cmd_reply)
 
     s = sub.add_parser("post-judgment", help="Rule 59/60/54(d) and FRAP 4 deadlines from entry of judgment")
     s.add_argument("--entered", type=_date, required=True)

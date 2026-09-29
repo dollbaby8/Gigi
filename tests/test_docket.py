@@ -34,6 +34,8 @@ class ClassifyTests(unittest.TestCase):
             "Second SUPPLEMENT to [11] MOTION for Contempt by Acme": "support",
             "CERTIFICATE of Conference re: [15] AMENDED MOTION": "support",
             "Supplemental EXHIBITS re: [18] MOTION for Summary Judgment": "support",
+            "Supplemental APPENDIX re: 9 MOTION for Preliminary Injunction": "support",
+            "NOTICE Defendant's Request for Hearing re: 11 MOTION for Contempt": "notice",
         }
         for text, kind in cases.items():
             with self.subTest(text=text):
@@ -66,6 +68,17 @@ class SampleDocketTests(unittest.TestCase):
     def test_hearing_modes(self):
         modes = [(h["what"], h["mode"]) for h in self.d.hearing_settings()]
         self.assertEqual(modes, [("Initial Conference", "telephone"), ("Evidentiary Hearing", "in person")])
+
+    def test_unbracketed_rulings_are_parsed(self):
+        d = dk.Docket(entries=[
+            dk.Entry(number=16, date=date(2026, 1, 2), text="MOTION for leave to file electronically by Jane Doe"),
+            dk.Entry(number=18, date=date(2026, 1, 3), text="ORDER granting 16 Motion for leave to file electronically."),
+            dk.Entry(number=19, date=date(2026, 1, 3), text="ORDER denying 8 Opposed Motion for Emergency; the Court reviewed 3 exhibits."),
+        ])
+        disp = d.dispositions()
+        self.assertEqual(disp[16][0]["ruling"], "granting")
+        self.assertEqual(disp[8][0]["ruling"], "denying")
+        self.assertNotIn(3, disp)
 
     def test_manual_dispositions_resolve_unlinked_motions(self):
         self.d.manual_dispositions = {9: [{"ruling": "granted (bare ORDER)", "order": 13}]}
