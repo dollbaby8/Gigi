@@ -2,7 +2,7 @@
 
 Gigi is a small command-line tool for litigating in the Southern District of Texas. It does five things:
 
-1. **Analyzes a docket.** It pulls out the judge's orders, rulings on each motion, motions with no ruling found, hearing settings (telephone vs. in person), and returned mail.
+1. **Analyzes a docket.** It pulls out the judge's orders, rulings on each motion, motions with no ruling found, and returned mail. It also lists hearing settings: telephone vs. in person, and whether each one was held, reset, or cancelled.
 2. **Computes deadlines.** It follows FRCP 6(a)/(d), S.D. Tex. LR 7.3/7.4 submission and reply days, federal legal holidays, and the post-judgment and appeal clocks (Rules 54(d)(2), 59, 60(c); FRAP 4(a)). Every date comes with the arithmetic that produced it.
 3. **Researches your judge.** It searches CourtListener for the presiding judge's own opinions and orders, by issue, so a brief can hold the court to its own prior rulings.
 4. **Keeps a citation-verified playbook.** Authorities and the court's own in-case orders are mapped to docket targets (e.g. `ECF 200`). Only entries marked verified render into briefs.
@@ -46,7 +46,8 @@ gigi build cases/my-case                 # briefs for every target + calendar + 
 - custom deadlines
 - dashboard alerts
 - `entry_overrides`, for entries missing from the docket index
-- `manual_dispositions`, for rulings that a bare "ORDER" entry does not name
+- `manual_dispositions`, for rulings that a bare "ORDER" entry does not name, e.g. `{"44": {"ruling": "granted", "order": 54}}` or simply `{"44": "granted"}`
+- `extra_holidays` (court closures; count in both directions) and `state_holidays` (FRCP 6(a)(6)(C); forward-measured periods only)
 - `judgment_entered`: set it the day a judgment is entered and the post-judgment clocks appear everywhere
 
 ## Deadline math
@@ -60,7 +61,7 @@ gigi post-judgment --entered 2026-10-05       # 54(d)(2), 59(e), FRAP 4(a)(1)(A)
 
 The LR 7.3 computation is tested against clerk-generated "Motion Docket Date" entries. That includes a date that rolls past Columbus Day and dates that roll past weekends.
 
-Presidential and congressional holiday declarations and clerk's-office closures cannot be predicted. Add them to `extra_holidays` in `case.json`.
+Presidential and congressional holiday declarations and clerk's-office closures cannot be predicted. Add them to `extra_holidays` in `case.json`, or pass `--holiday YYYY-MM-DD` to the date commands. State-declared holidays count only for periods measured forward (FRCP 6(a)(6)(C)): use `state_holidays` or `--state-holiday`. Whether a Texas "skeleton crew" day qualifies is a judgment call for counsel.
 
 ## Holding the court to its own rulings
 

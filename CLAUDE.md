@@ -16,6 +16,7 @@ See README.md for user-facing usage.
 
 - Run all tests: `python -m unittest discover -s tests -t .`
 - Run one test: `python -m unittest tests.test_deadlines.SubmissionDayTests.test_matches_clerk_dates`
+- The suite must pass on Python 3.9 (the minimum in pyproject). Avoid 3.10+-only APIs, e.g. `Path.write_text(newline=...)`.
 - Run the CLI without installing: `python -m gigi --help`. Or `pip install -e .`, then `gigi --help`.
 - Smoke test on the fictional sample: `python -m gigi build examples/sample-case --as-of 2026-03-25`
 
@@ -31,11 +32,12 @@ There is no linter configured. Match the surrounding style: type hints, dataclas
 
 ### Modules
 
-- **`holidays.py` → `deadlines.py`.** FRCP 6(a) counting with roll-forward (roll-backward for backward periods), the FRCP 6(d) +3 days, LR 7.3's 21-day submission day, and post-judgment clocks. Every function returns explanatory notes alongside dates. Keep that property: attorneys must be able to audit the arithmetic.
+- **`holidays.py` → `deadlines.py`.** FRCP 6(a) counting with roll-forward (roll-backward for backward periods), the FRCP 6(d) +3 days, LR 7.3's 21-day submission day, LR 7.4(E) replies, and post-judgment clocks. `extra` (court closures) counts in both directions; `state` (FRCP 6(a)(6)(C)) counts only going forward. Every function returns explanatory notes alongside dates. Keep that property: attorneys must be able to audit the arithmetic.
 - **`docket.py`.**
   - `classify()` assigns each entry a kind from CM/ECF text. Order of checks matters: mail-returned, then settings, minutes, transcripts, orders, responses/replies, support filings, motions.
-  - `Docket.dispositions()` parses "denying [51]"-style rulings and merges `manual_dispositions`.
-  - `pending_motions()` is "motions with no ruling found", not a guarantee.
+  - `Docket.dispositions()` parses explicit "<verb> [51]" rulings (or bare numbers directly followed by a motion word) and merges `manual_dispositions`. There is intentionally no looser matching: a false "ruled" hides a live motion, which is the dangerous direction.
+  - `pending_motions(as_of)` is "motions with no ruling found as of that date", not a guarantee.
+  - `hearing_settings()` tracks each setting's status: scheduled, held, superseded (by a reset), or cancelled. Only `scheduled` settings reach calendars.
   - Kinds are re-derived from text on every load, so stored `kind` values never go stale.
 - **`courtlistener.py`.** REST v4 search client with an injectable opener (tests never touch the network). `ISSUES` holds reusable Lucene queries. For opinions (`type=o`) the judge filter is `judge`; for RECAP documents (`type=rd`) it is `assigned_to`.
 - **`playbook.py`.**

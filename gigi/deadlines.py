@@ -44,25 +44,29 @@ class Deadline:
         }
 
 
-def _describe(d: date, extra: Iterable[date]) -> str:
-    return holiday_name(d, extra) or d.strftime("%A")
+def _describe(d: date, extra: Iterable[date], state: Iterable[date] = ()) -> str:
+    return holiday_name(d, extra, state) or d.strftime("%A")
 
 
-def roll(d: date, direction: int = 1, extra: Iterable[date] = ()) -> Tuple[date, List[str]]:
+def roll(
+    d: date, direction: int = 1, extra: Iterable[date] = (), state: Iterable[date] = ()
+) -> Tuple[date, List[str]]:
     """Move ``d`` off weekends and legal holidays (FRCP 6(a)(1)(C), 6(a)(5)).
 
     ``direction`` is +1 for periods measured forward from an event and -1 for
-    periods measured backward from one.
+    periods measured backward from one. State holidays (FRCP 6(a)(6)(C)) only
+    count going forward.
     """
     extra = tuple(extra)
+    state = tuple(state) if direction > 0 else ()
     start = d
-    while not is_business_day(d, extra):
+    while not is_business_day(d, extra, state):
         d += timedelta(days=direction)
     if d == start:
         return d, []
     word = "next" if direction > 0 else "previous"
     return d, [
-        f"Period ended {start.isoformat()} ({_describe(start, extra)}); "
+        f"Period ended {start.isoformat()} ({_describe(start, extra, state)}); "
         f"FRCP 6(a)(1)(C) moves it to the {word} business day, {d.isoformat()} ({d.strftime('%A')})."
     ]
 
@@ -74,6 +78,7 @@ def compute(
     mail_service: bool = False,
     backward: bool = False,
     extra: Iterable[date] = (),
+    state: Iterable[date] = (),
 ) -> Tuple[date, List[str]]:
     """Compute a deadline ``days`` after (or before) ``trigger``.
 
@@ -86,14 +91,14 @@ def compute(
         raise ValueError("days must be non-negative; use backward=True")
     if backward and mail_service:
         raise ValueError("FRCP 6(d) applies only to periods measured after service")
-    extra = tuple(extra)
+    extra, state = tuple(extra), tuple(state)
     direction = -1 if backward else 1
     raw = trigger + timedelta(days=direction * days)
     notes = [
         f"{days} days {'before' if backward else 'after'} {trigger.isoformat()} = {raw.isoformat()} "
         f"({raw.strftime('%A')}) [FRCP 6(a)(1)(A)-(B)]."
     ]
-    due, rolled = roll(raw, direction, extra)
+    due, rolled = roll(raw, direction, extra, state)
     notes += rolled
     if mail_service:
         plus = due + timedelta(days=MAIL_DAYS)
@@ -101,14 +106,14 @@ def compute(
             f"FRCP 6(d): served by mail (or other 6(d) method), so 3 days are added after "
             f"the period ends: {plus.isoformat()} ({plus.strftime('%A')})."
         )
-        due, rolled = roll(plus, 1, extra)
+        due, rolled = roll(plus, 1, extra, state)
         notes += rolled
     return due, notes
 
 
-def submission_day(filed: date, extra: Iterable[date] = ()) -> Tuple[date, List[str]]:
+def submission_day(filed: date, extra: Iterable[date] = (), state: Iterable[date] = ()) -> Tuple[date, List[str]]:
     """S.D. Tex. LR 7.3 submission day (also the LR 7.4 response deadline)."""
-    due, notes = compute(filed, SDTX_SUBMISSION_DAYS, extra=extra)
+    due, notes = compute(filed, SDTX_SUBMISSION_DAYS, extra=extra, state=state)
     notes.append(
         "S.D. Tex. LR 7.3/7.4: the opposed motion is submitted on this day and any response is due by it. "
         "Check the judge's procedures and any order setting a different schedule."
@@ -116,9 +121,9 @@ def submission_day(filed: date, extra: Iterable[date] = ()) -> Tuple[date, List[
     return due, notes
 
 
-def reply_day(response_filed: date, extra: Iterable[date] = ()) -> Tuple[date, List[str]]:
+def reply_day(response_filed: date, extra: Iterable[date] = (), state: Iterable[date] = ()) -> Tuple[date, List[str]]:
     """S.D. Tex. LR 7.4(E): the movant may reply within 7 days after the response is filed."""
-    due, notes = compute(response_filed, SDTX_REPLY_DAYS, extra=extra)
+    due, notes = compute(response_filed, SDTX_REPLY_DAYS, extra=extra, state=state)
     notes.append(
         "S.D. Tex. LR 7.4(E) (7 days from the response, unless otherwise directed by the presiding judge). "
         "Confirm against the current Local Rules and the judge's procedures."
@@ -126,16 +131,18 @@ def reply_day(response_filed: date, extra: Iterable[date] = ()) -> Tuple[date, L
     return due, notes
 
 
-def post_judgment(entered: date, *, us_party: bool = False, extra: Iterable[date] = ()) -> List[Deadline]:
+def post_judgment(
+    entered: date, *, us_party: bool = False, extra: Iterable[date] = (), state: Iterable[date] = ()
+) -> List[Deadline]:
     """Deadlines triggered by entry of a final judgment (or Rule 54(b) judgment).
 
     These run from *entry*, not service, so FRCP 6(d) never adds days.
     """
-    extra = tuple(extra)
+    extra, state = tuple(extra), tuple(state)
     out: List[Deadline] = []
 
     def add(label: str, days: int, rule: str, *notes: str) -> Deadline:
-        due, steps = compute(entered, days, extra=extra)
+        due, steps = compute(entered, days, extra=extra, state=state)
         dl = Deadline(label, due, rule, entered, kind="deadline", notes=steps + list(notes))
         out.append(dl)
         return dl
@@ -160,7 +167,7 @@ def post_judgment(entered: date, *, us_party: bool = False, extra: Iterable[date
         "FRAP 4(a)(1)(B)" if us_party else "FRAP 4(a)(1)(A)",
         "Jurisdictional. Restarts from the order disposing of a timely FRAP 4(a)(4)(A) motion.",
     )
-    ext, steps = compute(appeal.due, 30, extra=extra)
+    ext, steps = compute(appeal.due, 30, extra=extra, state=state)
     out.append(
         Deadline(
             "Last day to move to extend appeal time (excusable neglect or good cause)",
@@ -174,7 +181,7 @@ def post_judgment(entered: date, *, us_party: bool = False, extra: Iterable[date
         anniversary = entered.replace(year=entered.year + 1)
     except ValueError:  # entered on Feb 29
         anniversary = entered.replace(year=entered.year + 1, day=28)
-    due, steps = roll(anniversary, 1, extra)
+    due, steps = roll(anniversary, 1, extra, state)
     out.append(
         Deadline(
             "Outside limit for Rule 60(b)(1)-(3) motions",

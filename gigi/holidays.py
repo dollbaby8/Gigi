@@ -8,7 +8,8 @@ Both the calendar date and the observed date are treated as legal holidays.
 
 Days declared a holiday by the President or Congress (FRCP 6(a)(6)(B)) and
 unplanned clerk's-office closures (FRCP 6(a)(3)) cannot be computed; pass
-them in as ``extra`` dates.
+them in as ``extra`` dates. State-declared holidays (FRCP 6(a)(6)(C)) count
+only for periods measured forward from an event; pass them as ``state``.
 """
 
 from datetime import date, timedelta
@@ -70,13 +71,20 @@ def federal_holidays(year: int) -> Dict[date, str]:
     return {d: n for d, n in sorted(out.items()) if d.year == year}
 
 
-def holiday_name(d: date, extra: Iterable[date] = ()) -> Optional[str]:
-    """Name of the legal holiday on ``d``, or None."""
+def holiday_name(d: date, extra: Iterable[date] = (), state: Iterable[date] = ()) -> Optional[str]:
+    """Name of the legal holiday on ``d``, or None.
+
+    ``extra``: days the court declares or the clerk's office is inaccessible (both directions).
+    ``state``: state-declared holidays under FRCP 6(a)(6)(C); callers pass them only for
+    periods measured forward from an event.
+    """
     if d in set(extra):
         return "Court-declared holiday / clerk's office inaccessible"
+    if d in set(state):
+        return "State holiday (FRCP 6(a)(6)(C))"
     return federal_holidays(d.year).get(d)
 
 
-def is_business_day(d: date, extra: Iterable[date] = ()) -> bool:
+def is_business_day(d: date, extra: Iterable[date] = (), state: Iterable[date] = ()) -> bool:
     """True unless ``d`` is a Saturday, Sunday, or legal holiday."""
-    return d.weekday() < SATURDAY and holiday_name(d, extra) is None
+    return d.weekday() < SATURDAY and holiday_name(d, extra, state) is None

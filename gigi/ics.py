@@ -9,7 +9,8 @@ from gigi.deadlines import Deadline
 
 def _escape(text: str) -> str:
     return (
-        text.replace("\\", "\\\\").replace(";", "\\;").replace(",", "\\,").replace("\r\n", "\\n").replace("\n", "\\n")
+        text.replace("\\", "\\\\").replace(";", "\\;").replace(",", "\\,")
+        .replace("\r\n", "\\n").replace("\r", "\\n").replace("\n", "\\n")
     )
 
 

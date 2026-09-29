@@ -14,7 +14,7 @@ from gigi import dashboard as dash
 from gigi import docket as dk
 from gigi import ics
 from gigi import playbook as pbk
-from gigi.casefile import case_deadlines, init_case, load_case
+from gigi.casefile import case_deadlines, extra_holidays, init_case, load_case, state_holidays
 from gigi.deadlines import compute, post_judgment, reply_day, submission_day
 
 
@@ -29,6 +29,15 @@ def _slug(text: str) -> str:
     return "".join(c if c.isalnum() else "-" for c in text).strip("-").lower()
 
 
+def _write(path, text: str, newline: Optional[str] = None) -> None:
+    with open(path, "w", encoding="utf-8", newline=newline) as fh:
+        fh.write(text)
+
+
+def _holidays(args):
+    return tuple(args.holiday or ()), tuple(args.state_holiday or ())
+
+
 def _print_deadline(label: str, due: date, notes: List[str]) -> None:
     print(f"{label}: {due.isoformat()} ({due.strftime('%A')})")
     for n in notes:
@@ -37,32 +46,38 @@ def _print_deadline(label: str, due: date, notes: List[str]) -> None:
 
 # ---- commands --------------------------------------------------------------
 def cmd_deadline(args) -> int:
-    due, notes = compute(args.start, args.days, mail_service=args.mail, backward=args.backward)
+    extra, state = _holidays(args)
+    due, notes = compute(args.start, args.days, mail_service=args.mail, backward=args.backward, extra=extra, state=state)
     _print_deadline("Deadline", due, notes)
     return 0
 
 
 def cmd_submission(args) -> int:
-    due, notes = submission_day(args.filed)
+    due, notes = submission_day(args.filed, *_holidays(args))
     _print_deadline("Submission / response day", due, notes)
     return 0
 
 
 def cmd_reply(args) -> int:
-    due, notes = reply_day(args.response_filed)
+    due, notes = reply_day(args.response_filed, *_holidays(args))
     _print_deadline("Reply due", due, notes)
     return 0
 
 
 def cmd_post_judgment(args) -> int:
-    for dl in post_judgment(args.entered, us_party=args.us_party):
+    extra, state = _holidays(args)
+    for dl in post_judgment(args.entered, us_party=args.us_party, extra=extra, state=state):
         _print_deadline(f"{dl.label} [{dl.rule}]", dl.due, dl.notes)
     return 0
 
 
 def cmd_init(args) -> int:
+    existed = (Path(args.case_dir) / "case.json").exists()
     root = init_case(args.case_dir, case_number=args.case_number, caption=args.caption, judge=args.judge, court=args.court)
-    print(f"Initialized {root} (case.json, playbook.json). Add docket.json with `gigi import-docket`.")
+    if existed:
+        print(f"Updated {root / 'case.json'} with the given fields; everything else was kept.")
+    else:
+        print(f"Initialized {root} (case.json, playbook.json). Add docket.json with `gigi import-docket`.")
     return 0
 
 
@@ -83,18 +98,24 @@ def cmd_docket(args) -> int:
     elif args.view == "motions":
         ruled = d.dispositions()
         for e in d.motions():
-            status = "; ".join(f"{r['ruling']} (ECF {r['order']})" for r in ruled.get(e.number, [])) or "NO RULING FOUND"
+            status = "; ".join(
+                r.get("ruling", "ruled") + (f" (ECF {r['order']})" if r.get("order") else "")
+                for r in ruled.get(e.number, [])
+            ) or "NO RULING FOUND"
             print(f"{e.label:>8}  {e.date}  [{status}]  {e.short(110)}")
     elif args.view == "pending":
-        rows = d.pending_motions(as_of)
+        rows = d.pending_motions(as_of, extra_holidays(case.cfg), state_holidays(case.cfg))
         for r in rows:
             e = r["entry"]
             flags = (" EMERGENCY" if r["emergency"] else "") + (" CJRA-6mo" if r["cjra_candidate"] else "")
-            print(f"{e.label:>8}  filed {e.date}  submission {r['submission_day']}  age {r['age_days']:>3}d{flags}  {e.short(90)}")
+            age = f"{r['age_days']:>3}d" if r["age_days"] is not None else "  ?d"
+            print(f"{e.label:>8}  filed {e.date or 'unknown'}  submission {r['submission_day'] or 'unknown'}  "
+                  f"age {age}{flags}  {e.short(90)}")
         print(f"\n{len(rows)} motion(s) with no ruling found in docket text as of {as_of}. Confirm on PACER.")
     elif args.view == "hearings":
         for h in d.hearing_settings():
-            print(f"{h['date']}  {h['time']:>8}  {h['mode']:<9}  {h['what']}  ({h['entry'].label})")
+            changed = f" by {h['changed_by']}" if h["changed_by"] else ""
+            print(f"{h['date']}  {h['time']:>8}  {h['mode']:<9}  {h['status'] + changed:<22}  {h['what']}  ({h['entry'].label})")
     elif args.view == "mail":
         for e in d.mail_returned():
             print(f"{e.label:>8}  {e.date}  {e.short(150)}")
@@ -111,7 +132,7 @@ def cmd_deadlines(args) -> int:
         print(f"{d.due.isoformat()}  {d.days_from(args.as_of):>4}d  {d.kind:<10} {d.label}  [{d.rule or d.source}]")
     if args.ics:
         name = f"{case.cfg.get('case_number') or 'Case'} deadlines"
-        Path(args.ics).write_text(ics.to_ics(case_deadlines(case, args.as_of), name), encoding="utf-8", newline="")
+        _write(args.ics, ics.to_ics(case_deadlines(case, args.as_of), name), newline="")
         print(f"\nWrote calendar: {args.ics}")
     return 0
 
@@ -164,10 +185,10 @@ def cmd_playbook(args) -> int:
         info = pb.get("targets", {}).get(t, {})
         print(f"\n== {t}: {info.get('title', '')}")
         for o in pbk.orders_for(pb, t):
-            print(f"  [order] {o['ecf']} {o.get('date', '')}: {o['use']}")
+            print(f"  [order] {o.get('ecf', '?')} {o.get('date') or ''}: {o.get('use', '')}")
         for a in pbk.select(pb, target=t, verified_only=not args.all):
             flag = "" if a.get("verified") else " (UNVERIFIED)"
-            print(f"  [{a['kind']}] {a['case_name']}, {a['citation']}{flag}")
+            print(f"  [{a.get('kind', '?')}] {a.get('case_name', '?')}, {a.get('citation', '')}{flag}")
     if problems:
         print(f"\n{len(problems)} validation problem(s); run with --check to list them.")
     return 0
@@ -176,6 +197,13 @@ def cmd_playbook(args) -> int:
 def cmd_merge(args) -> int:
     case = load_case(args.case_dir)
     research = json.loads(Path(args.research).read_text(encoding="utf-8"))
+    if isinstance(research, list):
+        # `gigi research --out x.json` writes raw search hits: import them as unverified leads only.
+        research = {"unverified_leads": [
+            {"case_name": h.get("case_name") or "(untitled)", "why": "CourtListener search hit; read and verify",
+             "url": h.get("url")} for h in research if isinstance(h, dict)
+        ]}
+        print("Search results are leads, not authorities: imported as unverified_leads.")
     counts = pbk.merge(case.playbook, research, issue=args.issue)
     pbk.save(case.playbook, Path(args.case_dir) / "playbook.json")
     print(f"Merged {args.research}: {counts}")
@@ -206,13 +234,20 @@ def cmd_build(args) -> int:
     for t in case.playbook.get("targets", {}):
         (outd / f"brief_{_slug(t)}.md").write_text(brief_mod.render_insert(case.playbook, t, as_of=args.as_of), encoding="utf-8")
     name = f"{case.cfg.get('case_number') or 'Case'} deadlines"
-    (outd / "deadlines.ics").write_text(ics.to_ics(case_deadlines(case, args.as_of), name), encoding="utf-8", newline="")
+    _write(outd / "deadlines.ics", ics.to_ics(case_deadlines(case, args.as_of), name), newline="")
     (outd / "dashboard.html").write_text(dash.render(case, args.as_of, args.window), encoding="utf-8")
     problems = pbk.validate(case.playbook)
     print(f"Built {outd}: {len(case.playbook.get('targets', {}))} brief insert(s), deadlines.ics, dashboard.html")
     if problems:
         print(f"Playbook has {len(problems)} validation problem(s); run `gigi playbook {args.case_dir} --check`.")
     return 0
+
+
+def _holiday_flags(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--holiday", type=_date, action="append", metavar="YYYY-MM-DD",
+                        help="court-declared holiday or clerk's-office closure (repeatable; both directions)")
+    parser.add_argument("--state-holiday", type=_date, action="append", metavar="YYYY-MM-DD",
+                        help="state-declared holiday, FRCP 6(a)(6)(C) (repeatable; forward periods only)")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -226,19 +261,23 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--days", type=int, required=True)
     s.add_argument("--mail", action="store_true", help="add 3 days under FRCP 6(d)")
     s.add_argument("--backward", action="store_true", help="count backward from the trigger")
+    _holiday_flags(s)
     s.set_defaults(func=cmd_deadline)
 
     s = sub.add_parser("submission", help="S.D. Tex. LR 7.3 submission/response day for a motion")
     s.add_argument("--filed", type=_date, required=True)
+    _holiday_flags(s)
     s.set_defaults(func=cmd_submission)
 
     s = sub.add_parser("reply", help="S.D. Tex. LR 7.4(E) reply deadline from the response filing date")
     s.add_argument("--response-filed", type=_date, required=True)
+    _holiday_flags(s)
     s.set_defaults(func=cmd_reply)
 
     s = sub.add_parser("post-judgment", help="Rule 59/60/54(d) and FRAP 4 deadlines from entry of judgment")
     s.add_argument("--entered", type=_date, required=True)
     s.add_argument("--us-party", action="store_true", help="United States is a party (60-day appeal time)")
+    _holiday_flags(s)
     s.set_defaults(func=cmd_post_judgment)
 
     s = sub.add_parser("init", help="scaffold a case directory")

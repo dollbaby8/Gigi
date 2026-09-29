@@ -1,12 +1,13 @@
 """Self-contained HTML case dashboard (no external assets; phone-friendly)."""
 
+import re
 from datetime import date
 from html import escape
 from typing import List
 
 from gigi import __version__
 from gigi import playbook as pbk
-from gigi.casefile import Case, case_deadlines
+from gigi.casefile import Case, case_deadlines, extra_holidays, state_holidays
 
 CSS = """
 :root{--bg:#f7f7f5;--card:#fff;--ink:#1d1d1f;--muted:#5f6368;--line:#e3e3df;--accent:#1f4e79;
@@ -46,6 +47,17 @@ footer{color:var(--muted);font-size:.78rem;margin-top:24px}
 """
 
 
+def _s(value) -> str:
+    """Escape anything, including None and non-strings."""
+    return escape("" if value is None else str(value))
+
+
+def _href(url) -> str:
+    """Only http(s) links are rendered clickable."""
+    url = "" if url is None else str(url)
+    return escape(url) if re.match(r"^https?://", url, re.IGNORECASE) else ""
+
+
 def _urgency(days: int) -> str:
     if days <= 7:
         return "urgent"
@@ -56,9 +68,9 @@ def _urgency(days: int) -> str:
 
 def render(case: Case, as_of: date, window_days: int = 90) -> str:
     cfg, docket, pb = case.cfg, case.docket, case.playbook
-    e = escape
+    e = _s
     deadlines = [d for d in case_deadlines(case, as_of) if d.days_from(as_of) <= window_days]
-    pending = docket.pending_motions(as_of)
+    pending = docket.pending_motions(as_of, extra_holidays(cfg), state_holidays(cfg))
     orders = docket.orders()
     hearings = docket.hearing_settings()
     st = pbk.stats(pb)
@@ -70,7 +82,10 @@ def render(case: Case, as_of: date, window_days: int = 90) -> str:
     parts.append("<div class='banner'>Privileged &amp; confidential — attorney work product. Do not publish or forward.</div>")
 
     for alert in cfg.get("alerts", []):
-        parts.append(f"<div class='alert {e(alert.get('level', 'info'))}'>{e(alert.get('text', ''))}</div>")
+        if isinstance(alert, str):
+            alert = {"level": "info", "text": alert}
+        level = alert.get("level") if alert.get("level") in ("urgent", "warn", "info") else "info"
+        parts.append(f"<div class='alert {level}'>{e(alert.get('text'))}</div>")
 
     nxt = deadlines[0] if deadlines else None
     parts.append("<section class='stats'>")
@@ -104,8 +119,9 @@ def render(case: Case, as_of: date, window_days: int = 90) -> str:
         if r["cjra_candidate"]:
             flags.append("<span class='chip warn'>CJRA 6-month list</span>")
         rows.append(
-            f"<tr><td>{e(ent.label)}</td><td class='due'>{e(ent.date.isoformat())}</td><td class='due'>{e(r['submission_day'].isoformat())}</td>"
-            f"<td>{r['age_days']}d</td><td>{e(ent.short(140))} {''.join(flags)}</td></tr>"
+            f"<tr><td>{e(ent.label)}</td><td class='due'>{e(ent.date.isoformat() if ent.date else 'unknown')}</td>"
+            f"<td class='due'>{e(r['submission_day'].isoformat() if r['submission_day'] else 'unknown')}</td>"
+            f"<td>{e(str(r['age_days']) + 'd' if r['age_days'] is not None else '?')}</td><td>{e(ent.short(140))} {''.join(flags)}</td></tr>"
         )
     parts.append(
         "<section class='card'><h2>Motions with no ruling found in the docket text</h2>"
@@ -117,16 +133,21 @@ def render(case: Case, as_of: date, window_days: int = 90) -> str:
     if hearings:
         modes = {}
         for h in hearings:
-            modes[h["mode"]] = modes.get(h["mode"], 0) + 1
+            if h["status"] in ("held", "scheduled"):
+                modes[h["mode"]] = modes.get(h["mode"], 0) + 1
         summary = ", ".join(f"{v} {k}" for k, v in sorted(modes.items()))
+        status_chip = {"held": "ok", "scheduled": "warn", "superseded": "", "cancelled": ""}
         rows = "".join(
             f"<tr><td class='due'>{e(h['date'].isoformat() if h['date'] else '')}</td><td>{e(h['what'])}</td>"
-            f"<td><span class='chip'>{e(h['mode'])}</span></td><td>{e(h['entry'].label)}</td></tr>"
+            f"<td><span class='chip'>{e(h['mode'])}</span></td>"
+            f"<td><span class='chip {status_chip.get(h['status'], '')}'>{e(h['status'])}</span>"
+            f"{(' ' + e(h['changed_by'])) if h['changed_by'] else ''}</td><td>{e(h['entry'].label)}</td></tr>"
             for h in hearings
         )
         parts.append(
-            f"<section class='card'><h2>Hearing settings ({e(summary)})</h2><div class='scroll'><table><thead><tr><th>Date</th>"
-            f"<th>Setting</th><th>Mode</th><th>Source</th></tr></thead><tbody>{rows}</tbody></table></div></section>"
+            f"<section class='card'><h2>Hearing settings (held or scheduled: {e(summary)})</h2><div class='scroll'><table><thead>"
+            f"<tr><th>Date</th><th>Setting</th><th>Mode</th><th>Status</th><th>Source</th></tr></thead><tbody>{rows}</tbody>"
+            f"</table></div></section>"
         )
 
     rows = "".join(
@@ -144,21 +165,22 @@ def render(case: Case, as_of: date, window_days: int = 90) -> str:
             auths = pbk.select(pb, target=tgt)
             ords = pbk.orders_for(pb, tgt)
             parts.append(
-                f"<details><summary>{e(tgt)} — {e(info.get('title', ''))} "
+                f"<details><summary>{e(tgt)} — {e((info or {}).get('title'))} "
                 f"<span class='chip'>{len(ords)} in-case orders</span><span class='chip ok'>{len(auths)} verified</span></summary>"
             )
-            if info.get("ask"):
+            if (info or {}).get("ask"):
                 parts.append(f"<p><b>Ask:</b> {e(info['ask'])}</p>")
             for o in ords:
-                quote = f"<blockquote>{e(o['excerpt'])}</blockquote>" if o.get("excerpt") and o.get("verbatim") else ""
-                parts.append(f"<div class='auth'><p><b>{e(o['ecf'])}</b> {e(o.get('date', ''))} {e(o.get('title', ''))}</p>{quote}"
-                             f"<p class='muted'>{e(o['use'])}</p></div>")
+                quote = f"<blockquote>{e(o.get('excerpt'))}</blockquote>" if o.get("excerpt") and o.get("verbatim") else ""
+                parts.append(f"<div class='auth'><p><b>{e(o.get('ecf'))}</b> {e(o.get('date'))} {e(o.get('title'))}</p>{quote}"
+                             f"<p class='muted'>{e(o.get('use'))}</p></div>")
             for a in auths:
-                link = f" <a href='{e(a['source_url'])}'>source</a>" if a.get("source_url") else ""
-                quote = f"<blockquote>{e(a['quote'])}</blockquote>" if a.get("quote") else ""
+                href = _href(a.get("source_url"))
+                link = f" <a href='{href}' rel='noopener noreferrer'>source</a>" if href else ""
+                quote = f"<blockquote>{e(a.get('quote'))}</blockquote>" if a.get("quote") else ""
                 parts.append(
-                    f"<div class='auth'><p><span class='chip'>{e(pbk.KIND_LABELS.get(a['kind'], a['kind']))}</span>"
-                    f"<b>{e(a['case_name'])}</b>, {e(a['citation'])}{link}</p>{quote}<p class='muted'>{e(a.get('use', ''))}</p></div>"
+                    f"<div class='auth'><p><span class='chip'>{e(pbk.KIND_LABELS.get(a.get('kind'), a.get('kind')))}</span>"
+                    f"<b>{e(a.get('case_name'))}</b>, {e(a.get('citation'))}{link}</p>{quote}<p class='muted'>{e(a.get('use'))}</p></div>"
                 )
             parts.append("</details>")
         parts.append("</section>")

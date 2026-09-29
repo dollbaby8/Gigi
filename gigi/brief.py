@@ -13,7 +13,7 @@ BANNER = (
 
 
 def _authority_block(a: dict) -> List[str]:
-    lines = [f"**{a['case_name']}**, {a['citation']}"]
+    lines = [f"**{a.get('case_name') or '(unnamed authority)'}**" + (f", {a['citation']}" if a.get("citation") else "")]
     if a.get("holding"):
         lines.append(f"- *Holding:* {a['holding']}")
     if a.get("quote"):
@@ -61,12 +61,13 @@ def render_insert(
     if orders:
         out += [f"## {section}. The Court's own orders in this case", ""]
         for o in orders:
-            head = f"**{o['ecf']}**" + (f" ({o['date']})" if o.get("date") else "") + (f" — {o['title']}" if o.get("title") else "")
+            head = f"**{o.get('ecf') or '(ECF ?)'}**" + (f" ({o['date']})" if o.get("date") else "") + (f" — {o['title']}" if o.get("title") else "")
             out.append(head)
             if o.get("excerpt"):
                 label = "Verbatim" if o.get("verbatim") else "Docket text / summary"
                 out.append(f"- *{label}:* “{o['excerpt']}”" if o.get("verbatim") else f"- *{label}:* {o['excerpt']}")
-            out.append(f"- *Use:* {o['use']}")
+            if o.get("use"):
+                out.append(f"- *Use:* {o['use']}")
             out.append("")
         section += 1
 
@@ -91,17 +92,17 @@ def render_insert(
     if used:
         out += ["## Cite-check table", "", "| # | Authority | Kind | Verified | How verified | Source |", "|---|---|---|---|---|---|"]
         for i, a in enumerate(used, 1):
-            cite = f"{a['case_name']}, {a['citation']}".replace("|", "\\|")
+            cite = f"{a.get('case_name', '')}, {a.get('citation', '')}".replace("|", "\\|")
             how = (a.get("verification") or "").replace("|", "\\|").replace("\n", " ")
             src = a.get("source_url") or ""
-            out.append(f"| {i} | {cite} | {a['kind']} | {'yes' if a.get('verified') else 'NO'} | {how} | {src} |")
+            out.append(f"| {i} | {cite} | {a.get('kind', '')} | {'yes' if a.get('verified') else 'NO'} | {how} | {src} |")
         out.append("")
 
     if not include_unverified:
         skipped = [a for a in pb.get("authorities", []) if target in (a.get("targets") or []) and not a.get("verified")]
         if skipped:
             out += ["## Excluded — unverified (do not cite)", ""]
-            out += [f"- {a['case_name']}, {a['citation']}" for a in skipped]
+            out += [f"- {a.get('case_name', '')}, {a.get('citation', '')}" for a in skipped]
             out.append("")
 
     if not orders and not used:

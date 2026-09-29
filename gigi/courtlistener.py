@@ -128,13 +128,16 @@ class CourtListener:
         limit: int = 20,
     ) -> List[dict]:
         """Search opinions (kind='o') or RECAP documents (kind='rd')."""
+        # For RECAP documents, filter on the document's entry date, not the case filing date.
+        after_key, before_key = ("entry_date_filed_after", "entry_date_filed_before") if kind == "rd" else (
+            "filed_after", "filed_before")
         params = {
             "type": kind,
             "q": q,
             "court": court,
             "order_by": order_by,
-            "filed_after": filed_after,
-            "filed_before": filed_before,
+            after_key: filed_after,
+            before_key: filed_before,
         }
         if judge:
             params["judge" if kind == "o" else "assigned_to"] = judge
@@ -163,7 +166,8 @@ def normalize_hit(hit: dict, kind: str = "o") -> dict:
     url = hit.get("absolute_url") or ""
     return {
         "case_name": hit.get("caseName") or hit.get("case_name") or "",
-        "date": hit.get("dateFiled") or hit.get("entry_date_filed") or hit.get("date_filed") or "",
+        "date": (hit.get("entry_date_filed") or hit.get("dateFiled") if kind == "rd"
+                 else hit.get("dateFiled") or hit.get("entry_date_filed")) or hit.get("date_filed") or "",
         "docket_number": hit.get("docketNumber") or hit.get("docket_number") or "",
         "court": hit.get("court_citation_string") or hit.get("court") or "",
         "judge": hit.get("judge") or hit.get("assignedTo") or "",

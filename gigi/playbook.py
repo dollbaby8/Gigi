@@ -134,43 +134,66 @@ def _norm(text: str) -> str:
     return re.sub(r"[^a-z0-9]", "", (text or "").lower())
 
 
+def _key(a: dict) -> str:
+    """Dedupe key: the citation when present; otherwise something that identifies the entry.
+
+    Never falls back to case name alone (separate orders in one case would collide) and
+    never returns an empty key.
+    """
+    cite = _norm(a.get("citation"))
+    if cite:
+        return "cite:" + cite
+    for field in ("source_url", "id"):
+        if a.get(field):
+            return f"{field}:{_norm(a[field])}"
+    return "fallback:" + _norm(f"{a.get('case_name')}|{a.get('date')}|{a.get('holding')}")
+
+
 def merge(pb: dict, research: dict, issue: Optional[str] = None) -> Dict[str, int]:
     """Merge a research file (same authority shape) into the playbook.
 
-    Deduplicates on normalized citation (falling back to case name); a
-    verified copy replaces an unverified one, never the reverse.
+    Deduplicates by citation (see ``_key``). A verified copy replaces an unverified
+    one (keeping the existing id), never the reverse. Ids stay unique across the
+    authorities and adverse sections, which is what ``validate`` requires.
     """
     counts = {"added": 0, "upgraded": 0, "skipped": 0, "leads": 0}
+    ids = {a.get("id") for sec in ("authorities", "adverse") for a in pb.get(sec, []) if a.get("id")}
     for section in ("authorities", "adverse"):
-        index = {}
-        for i, a in enumerate(pb.get(section, [])):
-            index[_norm(a.get("citation")) or _norm(a.get("case_name"))] = i
-        ids = {a.get("id") for a in pb.get(section, [])}
+        index = {_key(a): i for i, a in enumerate(pb.get(section, []))}
         for raw in research.get(section, []) or []:
             a = dict(raw)
             a["kind"] = KIND_ALIASES.get(a.get("kind"), a.get("kind"))
             if issue and not a.get("issue"):
                 a["issue"] = issue
-            key = _norm(a.get("citation")) or _norm(a.get("case_name"))
+            key = _key(a)
             if key in index:
                 cur = pb[section][index[key]]
+                targets = sorted(set(cur.get("targets") or []) | set(a.get("targets") or []))
                 if a.get("verified") and not cur.get("verified"):
-                    a["targets"] = sorted(set(cur.get("targets") or []) | set(a.get("targets") or []))
+                    a["id"] = cur.get("id") or a.get("id")
+                    a["targets"] = targets
                     pb[section][index[key]] = a
                     counts["upgraded"] += 1
                 else:
-                    cur["targets"] = sorted(set(cur.get("targets") or []) | set(a.get("targets") or []))
+                    cur["targets"] = targets
                     counts["skipped"] += 1
                 continue
-            base, n = a.get("id") or _norm(a.get("case_name"))[:40], 2
-            while a.get("id") in ids or not a.get("id"):
-                a["id"] = f"{base}-{n}"
+            base = a.get("id") or _norm(a.get("case_name"))[:40] or "authority"
+            candidate, n = base, 2
+            while candidate in ids:
+                candidate = f"{base}-{n}"
                 n += 1
-            ids.add(a["id"])
+            a["id"] = candidate
+            ids.add(candidate)
             pb.setdefault(section, []).append(a)
             index[key] = len(pb[section]) - 1
             counts["added"] += 1
+    seen_leads = {(_norm(l.get("case_name")), _norm(l.get("why"))) for l in pb.get("unverified_leads", [])}
     for lead in research.get("unverified_leads", []) or []:
+        k = (_norm(lead.get("case_name")), _norm(lead.get("why")))
+        if k in seen_leads:
+            continue
+        seen_leads.add(k)
         pb.setdefault("unverified_leads", []).append(lead)
         counts["leads"] += 1
     return counts

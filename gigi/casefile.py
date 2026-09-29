@@ -25,8 +25,8 @@ CASE_TEMPLATE = {
     "caption": "",
     "judge": "",
     "our_side": "",
-    "service_by_mail": False,
     "extra_holidays": [],
+    "state_holidays": [],
     "judgment_entered": None,
     "us_party": False,
     "scheduling_order": {"source": "", "deadlines": []},
@@ -52,14 +52,30 @@ class Case:
 
 
 def init_case(root, **fields) -> Path:
+    """Create a case directory, or merge the given fields into an existing case.json."""
     root = Path(root)
     root.mkdir(parents=True, exist_ok=True)
-    cfg = dict(CASE_TEMPLATE, **{k: v for k, v in fields.items() if v is not None})
-    (root / "case.json").write_text(json.dumps(cfg, indent=1) + "\n", encoding="utf-8")
+    cfg_path = root / "case.json"
+    given = {k: v for k, v in fields.items() if v is not None}
+    if cfg_path.exists():
+        cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
+        cfg.update(given)
+    else:
+        cfg = dict(CASE_TEMPLATE, **given)
+    cfg_path.write_text(json.dumps(cfg, indent=1) + "\n", encoding="utf-8")
     pb_path = root / "playbook.json"
     if not pb_path.exists():
-        pbk.save(pbk.empty(cfg["case_number"], cfg["judge"]), pb_path)
+        pbk.save(pbk.empty(cfg.get("case_number", ""), cfg.get("judge", "")), pb_path)
     return root
+
+
+def _normalize_dispositions(raw: dict) -> dict:
+    """Accept {"9": "granted"}, {"9": {"ruling": ...}}, or {"9": [{...}, "text"]}."""
+    out = {}
+    for num, value in (raw or {}).items():
+        items = value if isinstance(value, list) else [value]
+        out[int(num)] = [{"ruling": v} if isinstance(v, str) else dict(v) for v in items]
+    return out
 
 
 def load_case(root) -> Case:
@@ -74,22 +90,28 @@ def load_case(root) -> Case:
     docket.judge = cfg["judge"] or docket.judge
     docket.court = cfg["court"] or docket.court
     apply_overrides(docket, cfg.get("entry_overrides"))
-    docket.manual_dispositions = {
-        int(k): v if isinstance(v, list) else [v] for k, v in (cfg.get("manual_dispositions") or {}).items()
-    }
+    docket.manual_dispositions = _normalize_dispositions(cfg.get("manual_dispositions"))
+    if cfg.get("judgment_entered") and not _parse_date(cfg["judgment_entered"]):
+        raise ValueError(f"case.json judgment_entered must be YYYY-MM-DD, got {cfg['judgment_entered']!r}")
     pb_path = root / "playbook.json"
     pb = pbk.load(pb_path) if pb_path.exists() else pbk.empty(cfg["case_number"], cfg["judge"])
     return Case(root, cfg, docket, pb)
 
 
 def extra_holidays(cfg: dict) -> Tuple[date, ...]:
+    """Court-declared holidays and clerk's-office closures (count in both directions)."""
     return tuple(d for d in (_parse_date(x) for x in cfg.get("extra_holidays", [])) if d)
+
+
+def state_holidays(cfg: dict) -> Tuple[date, ...]:
+    """State-declared holidays under FRCP 6(a)(6)(C) (forward-measured periods only)."""
+    return tuple(d for d in (_parse_date(x) for x in cfg.get("state_holidays", [])) if d)
 
 
 def _from_cfg(item: dict, default_source: str, default_rule: str = "") -> Deadline:
     return Deadline(
-        label=item["label"],
-        due=_parse_date(item["date"]),
+        label=item.get("label", "(unlabeled deadline)"),
+        due=_parse_date(item.get("date")),
         rule=item.get("rule", default_rule),
         source=item.get("source", default_source),
         kind=item.get("kind", "deadline"),
@@ -105,8 +127,11 @@ def case_deadlines(case: Case, as_of: date, include_past: bool = False) -> List[
         out.append(_from_cfg(item, so.get("source", "Scheduling order"), "Scheduling order"))
     for item in cfg.get("custom_deadlines", []):
         out.append(_from_cfg(item, "case.json"))
-    for row in case.docket.pending_motions(as_of):
+    extra, state = extra_holidays(cfg), state_holidays(cfg)
+    for row in case.docket.pending_motions(as_of, extra, state):
         e = row["entry"]
+        if row["submission_day"] is None:
+            continue
         out.append(
             Deadline(
                 label=f"Submission day — {e.label}: {e.short(80)}",
@@ -119,7 +144,7 @@ def case_deadlines(case: Case, as_of: date, include_past: bool = False) -> List[
             )
         )
     for h in case.docket.hearing_settings():
-        if h["date"]:
+        if h["date"] and h["status"] == "scheduled":
             out.append(
                 Deadline(
                     label=f"{h['what']} — {h['mode']} ({h['time']})",
@@ -132,7 +157,7 @@ def case_deadlines(case: Case, as_of: date, include_past: bool = False) -> List[
             )
     if cfg.get("judgment_entered"):
         for dl in post_judgment(_parse_date(cfg["judgment_entered"]), us_party=cfg.get("us_party", False),
-                                extra=extra_holidays(cfg)):
+                                extra=extra, state=state):
             dl.source = "Judgment entered " + cfg["judgment_entered"]
             out.append(dl)
     uniq = {}
