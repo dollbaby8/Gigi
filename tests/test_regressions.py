@@ -78,6 +78,13 @@ class HearingStatusTests(unittest.TestCase):
             (date(2026, 3, 20), "Motion Hearing", "cancelled"),
         ])
 
+    def test_unprefixed_unnumbered_clerk_entry_cancels(self):
+        d = dk.Docket(entries=[
+            entry(37, date(2025, 11, 6), "NOTICE of Setting. Motion Hearing set for 11/7/2025 at 03:00 PM in by telephone before Judge X"),
+            entry(None, date(2025, 11, 7), "motion hearing to be rescheduled. (aar4)"),
+        ])
+        self.assertEqual([h["status"] for h in d.hearing_settings()], ["cancelled"])
+
     def test_past_hearing_not_superseded_by_later_setting(self):
         d = dk.Docket(entries=[
             entry(38, date(2025, 11, 10), "ORDER ... Motion Hearing set for 11/17/2025 at 10:30 AM in by telephone before Judge X"),

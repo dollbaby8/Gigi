@@ -31,6 +31,7 @@ h3{font-size:.98rem;margin:0 0 6px}.sub{color:var(--muted);font-size:.9rem}
 .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
 .stat b{display:block;font-size:1.5rem;line-height:1.2}.stat span{color:var(--muted);font-size:.82rem}
 .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.scroll table{min-width:560px}
 table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
 th{color:var(--muted);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.03em}
 td:first-child{white-space:nowrap}

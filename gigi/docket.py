@@ -138,6 +138,9 @@ class Entry:
     def __post_init__(self):
         if not self.kind:
             self.kind = classify(self.text)
+            # Unnumbered CM/ECF entries are clerk/minute entries even without a "Minute Entry" prefix.
+            if self.kind == "other" and self.number is None:
+                self.kind = "minute"
 
     @property
     def label(self) -> str:
