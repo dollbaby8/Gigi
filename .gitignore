@@ -1,0 +1,13 @@
+# Secrets
+.env
+
+# Your face and your twin are private - never commit them
+photos/*
+!photos/.gitkeep
+outputs/*
+!outputs/.gitkeep
+twin.json
+*.zip
+
+__pycache__/
+.venv/

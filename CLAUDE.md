@@ -2,18 +2,30 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Repository Status
+## What this is
 
-This repository (`dollbaby8/Gigi`) is currently empty — no commits, source files, build configuration, or README exist yet. The remote has no branches.
+A Python CLI that builds a personal AI "digital twin" on fal.ai: it trains a FLUX LoRA on the owner's photos, then generates realistic Instagram photos.
 
-When source code lands, this file should be updated with:
+## Commands
 
-- **Build / test / lint commands** — the exact invocations, including how to run a single test.
-- **Architecture overview** — the cross-file structure and data flow that is not obvious from reading any single file.
-- **Project-specific conventions** — anything non-obvious about how code in this repo is organized, named, or wired together.
+```bash
+pip install -r requirements.txt
+python -m twin.train --trigger GIGI [--steps N]        # zips photos/, trains, writes twin.json
+python -m twin.generate --list                          # list presets
+python -m twin.generate --preset NAME|all [--size portrait|square|story] [--num N] [--scale F] [--seed N]
+python -m twin.generate --prompt "custom scene"
+```
 
-Until that content exists, there is nothing repo-specific to document here. Do not invent commands or architecture; read the actual files that get added and update this file based on them.
+There are no tests or lint config yet.
 
-## Working Branch
+## Architecture
 
-Per the task configuration, development happens on `claude/add-claude-documentation-dGkHI`. Commit and push work to that branch.
+- `twin/train.py`: zips `photos/`, uploads it with `fal_client.upload_file`, calls `FAL_TRAIN_ENDPOINT` (default `fal-ai/flux-lora-fast-training`), and saves the trigger word and LoRA URL to `twin.json`.
+- `twin/generate.py`: reads `twin.json`, builds a prompt via `twin/prompts.py`, calls `FAL_GEN_ENDPOINT` (default `fal-ai/flux-lora`), and downloads the results to `outputs/`.
+- `twin/prompts.py`: holds the scene presets (`{T}` is the trigger-word placeholder) and the shared `REALISM` suffix that is appended to every prompt.
+
+## Conventions
+
+- `FAL_KEY` lives in `.env` (gitignored).
+- `photos/`, `outputs/`, and `twin.json` hold the owner's likeness and are gitignored. Never commit them.
+- Run scripts as modules (`python -m twin.x`) from the repo root.
